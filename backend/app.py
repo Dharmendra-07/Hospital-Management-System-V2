@@ -1,6 +1,6 @@
 """
 backend/app.py — Flask application factory
-Milestones registered: Auth, Admin, Doctor
+Milestones registered: Auth, Admin, Doctor, Patient
 """
 
 from flask import Flask, jsonify
@@ -33,17 +33,15 @@ def create_app(config_class=Config):
     def invalid_token(reason):
         return jsonify({'error': 'Invalid token.', 'reason': reason}), 422
 
-    # ── Blueprints ──────────────────────────
-    from routes.auth   import auth_bp
-    from routes.admin  import admin_bp
-    from routes.doctor import doctor_bp
-    app.register_blueprint(auth_bp,   url_prefix='/api/auth')
-    app.register_blueprint(admin_bp,  url_prefix='/api/admin')
-    app.register_blueprint(doctor_bp, url_prefix='/api/doctor')
-
-    # Uncomment in Patient milestone:
-    # from routes.patient import patient_bp
-    # app.register_blueprint(patient_bp, url_prefix='/api/patient')
+    # ── All Blueprints ──────────────────────
+    from routes.auth    import auth_bp
+    from routes.admin   import admin_bp
+    from routes.doctor  import doctor_bp
+    from routes.patient import patient_bp
+    app.register_blueprint(auth_bp,    url_prefix='/api/auth')
+    app.register_blueprint(admin_bp,   url_prefix='/api/admin')
+    app.register_blueprint(doctor_bp,  url_prefix='/api/doctor')
+    app.register_blueprint(patient_bp, url_prefix='/api/patient')
 
     @app.route('/api/health')
     def health():
