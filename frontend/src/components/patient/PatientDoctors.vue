@@ -37,7 +37,8 @@
         <div class="card border-0 shadow-sm h-100">
           <div class="card-body">
             <div class="d-flex align-items-center gap-3 mb-3">
-              <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-bold d-flex align-items-center justify-content-center"
+              <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-bold
+                          d-flex align-items-center justify-content-center"
                    style="width:48px;height:48px;font-size:18px;">
                 {{ d.full_name.charAt(0) }}
               </div>
@@ -57,10 +58,10 @@
               <span :class="d.available_slots > 0
                 ? 'badge bg-success bg-opacity-10 text-success border border-success'
                 : 'badge bg-danger bg-opacity-10 text-danger border border-danger'">
-                {{ d.available_slots }} slot{{ d.available_slots !== 1 ? 's' : '' }} available
+                {{ d.available_slots }} slot{{ d.available_slots !== 1 ? 's' : '' }} free
               </span>
             </div>
-            <p v-if="d.bio" class="text-muted small mb-3"
+            <p v-if="d.bio" class="text-muted small mb-0"
                style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
               {{ d.bio }}
             </p>
@@ -76,14 +77,16 @@
       </div>
     </div>
 
-    <!-- ── Doctor Profile Modal ───────────────── -->
+    <!-- Doctor Profile Modal -->
     <div v-if="selectedDoctor && showProfile" class="modal d-block" style="background:rgba(0,0,0,.5);">
       <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
             <div>
               <h5 class="modal-title">Dr. {{ selectedDoctor.full_name }}</h5>
-              <div class="text-muted small">{{ selectedDoctor.specialization }} · {{ selectedDoctor.department }}</div>
+              <div class="text-muted small">
+                {{ selectedDoctor.specialization }} · {{ selectedDoctor.department }}
+              </div>
             </div>
             <button type="button" class="btn-close" @click="showProfile=false"></button>
           </div>
@@ -106,26 +109,18 @@
                 <div>{{ selectedDoctor.bio }}</div>
               </div>
             </div>
-
-            <!-- Availability Grid -->
             <h6 class="fw-semibold mb-3">📅 Availability (Next 7 Days)</h6>
-            <div v-if="profileLoading" class="text-center py-3">
-              <div class="spinner-border spinner-border-sm text-primary"></div>
-            </div>
-            <div v-else>
-              <div v-for="day in selectedDoctor.availability" :key="day.date" class="mb-2">
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                  <span class="text-muted small fw-semibold" style="min-width:100px;">{{ day.date }}</span>
-                  <span v-if="day.slots.length === 0" class="text-muted small fst-italic">No slots</span>
-                  <button v-for="s in day.slots" :key="s.id"
-                          :class="['btn btn-sm', s.is_booked
-                            ? 'btn-danger disabled opacity-75'
-                            : 'btn-outline-success']"
-                          :disabled="s.is_booked"
-                          @click="quickBook(selectedDoctor, day.date, s.slot)">
-                    {{ s.slot }} {{ s.is_booked ? '(Booked)' : '' }}
-                  </button>
-                </div>
+            <div v-for="day in selectedDoctor.availability" :key="day.date" class="mb-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="text-muted small fw-semibold" style="min-width:100px;">{{ day.date }}</span>
+                <span v-if="day.slots.length === 0" class="text-muted small fst-italic">No slots</span>
+                <button v-for="s in day.slots" :key="s.id"
+                        :class="['btn btn-sm', s.is_booked
+                          ? 'btn-danger opacity-50 disabled' : 'btn-outline-success']"
+                        :disabled="s.is_booked"
+                        @click="quickBook(selectedDoctor, day.date, s.slot)">
+                  {{ s.slot }} {{ s.is_booked ? '(Booked)' : '' }}
+                </button>
               </div>
             </div>
           </div>
@@ -137,7 +132,7 @@
       </div>
     </div>
 
-    <!-- ── Book Appointment Modal ────────────── -->
+    <!-- Book Appointment Modal (with ConflictChecker) -->
     <div v-if="showBook" class="modal d-block" style="background:rgba(0,0,0,.5);">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -149,31 +144,30 @@
             <button type="button" class="btn-close" @click="showBook=false"></button>
           </div>
           <div class="modal-body">
+            <!-- Date -->
             <div class="mb-3">
               <label class="form-label fw-semibold">Select Date</label>
               <select v-model="bookForm.date" class="form-select" @change="onDateChange">
-                <option value="">-- Choose date --</option>
+                <option value="">-- Choose a date --</option>
                 <option v-for="day in bookDays" :key="day.date"
                         :value="day.date"
                         :disabled="day.freeSlots.length === 0">
-                  {{ day.date }} ({{ day.freeSlots.length }} slot{{ day.freeSlots.length !== 1 ? 's' : '' }})
+                  {{ day.date }}
+                  ({{ day.freeSlots.length }} slot{{ day.freeSlots.length !== 1 ? 's' : '' }})
                 </option>
               </select>
             </div>
-            <div class="mb-3" v-if="bookForm.date">
-              <label class="form-label fw-semibold">Select Time Slot</label>
-              <div class="d-flex flex-wrap gap-2">
-                <button v-for="s in availableSlotsForDate" :key="s"
-                        :class="['btn btn-sm', bookForm.time_slot === s
-                          ? 'btn-primary' : 'btn-outline-primary']"
-                        @click="bookForm.time_slot = s">
-                  {{ s }}
-                </button>
-              </div>
-              <div v-if="availableSlotsForDate.length === 0" class="text-muted small mt-1">
-                No slots available for this date.
-              </div>
-            </div>
+
+            <!-- Slot picker with live conflict check -->
+            <ConflictChecker
+              v-if="bookForm.date"
+              v-model="bookForm.time_slot"
+              :slots="slotsForSelectedDate"
+              :doctor-id="bookDoctor?.id"
+              :date="bookForm.date"
+            />
+
+            <!-- Visit type + notes -->
             <div class="mb-3">
               <label class="form-label fw-semibold">Visit Type</label>
               <select v-model="bookForm.visit_type" class="form-select">
@@ -184,7 +178,7 @@
             <div class="mb-3">
               <label class="form-label fw-semibold">Notes (optional)</label>
               <textarea v-model="bookForm.notes" class="form-control" rows="2"
-                        placeholder="Describe your symptoms…"></textarea>
+                        placeholder="Describe your symptoms or reason for visit…"></textarea>
             </div>
             <div v-if="bookError" class="alert alert-danger mb-0">{{ bookError }}</div>
           </div>
@@ -198,39 +192,31 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import ConflictChecker from '../shared/ConflictChecker.vue'
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 export default {
   name: 'PatientDoctors',
+  components: { ConflictChecker },
   emits: ['booked'],
   data() {
     return {
-      doctors:        [],
-      departments:    [],
-      loading:        false,
-      search:         '',
-      selectedDept:   '',
-      // Profile modal
-      selectedDoctor: null,
-      showProfile:    false,
-      profileLoading: false,
-      // Book modal
-      showBook:    false,
-      bookDoctor:  null,
-      bookDays:    [],
-      bookForm:    { date: '', time_slot: '', visit_type: 'In-person', notes: '' },
-      bookError:   '',
-      booking:     false,
+      doctors: [], departments: [], loading: false,
+      search: '', selectedDept: '',
+      selectedDoctor: null, showProfile: false,
+      showBook: false, bookDoctor: null,
+      bookDays: [],
+      bookForm: { date: '', time_slot: '', visit_type: 'In-person', notes: '' },
+      bookError: '', booking: false,
     }
   },
   computed: {
-    availableSlotsForDate() {
+    slotsForSelectedDate() {
       if (!this.bookForm.date) return []
       const day = this.bookDays.find(d => d.date === this.bookForm.date)
       return day ? day.freeSlots : []
@@ -259,13 +245,11 @@ export default {
     clearSearch() { this.search = ''; this.selectedDept = ''; this.fetchDoctors() },
 
     async viewDoctor(d) {
-      this.showProfile  = true
-      this.profileLoading = true
+      this.showProfile = true
       try {
         const { data } = await axios.get(`${API}/patient/doctors/${d.id}`)
         this.selectedDoctor = data
       } catch (e) { console.error(e) }
-      finally { this.profileLoading = false }
     },
 
     quickBook(doctor, dateStr, slot) {
@@ -278,12 +262,11 @@ export default {
     },
 
     async openBook(doctor) {
-      this.showBook  = true
+      this.showBook   = true
       this.bookDoctor = doctor
       this.bookError  = ''
       this.bookForm   = { date: '', time_slot: '', visit_type: 'In-person', notes: '' }
       this.showProfile = false
-      // Load availability
       try {
         const { data } = await axios.get(`${API}/patient/doctors/${doctor.id}`)
         this.bookDays = data.availability.map(day => ({
@@ -302,11 +285,11 @@ export default {
       this.booking = true
       try {
         await axios.post(`${API}/patient/appointments`, {
-          doctor_id: this.bookDoctor.id,
-          date:      this.bookForm.date,
-          time_slot: this.bookForm.time_slot,
-          visit_type:this.bookForm.visit_type,
-          notes:     this.bookForm.notes,
+          doctor_id:  this.bookDoctor.id,
+          date:       this.bookForm.date,
+          time_slot:  this.bookForm.time_slot,
+          visit_type: this.bookForm.visit_type,
+          notes:      this.bookForm.notes,
         })
         this.showBook = false
         this.$emit('booked')
