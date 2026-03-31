@@ -1,25 +1,23 @@
 """
 backend/app.py — Flask application factory
-Milestones: Auth · Admin · Doctor · Patient · Appointments/History/Conflict
+All milestones registered: Auth · Admin · Doctor · Patient · Appointments · Exports
 """
 
 from flask import Flask, jsonify
-from flask_jwt_extended import JWTManager
-from flask_caching import Cache
+from extensions import mail, cache, jwt
 from config import Config
 from models import db
-
-cache = Cache()
-jwt   = JWTManager()
 
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    # ── Extensions ──────────────────────────
     db.init_app(app)
     jwt.init_app(app)
     cache.init_app(app)
+    mail.init_app(app)
 
     # ── JWT error handlers ───────────────────
     @jwt.unauthorized_loader
@@ -40,12 +38,14 @@ def create_app(config_class=Config):
     from routes.doctor       import doctor_bp
     from routes.patient      import patient_bp
     from routes.appointments import appt_bp
+    from routes.exports      import export_bp
 
     app.register_blueprint(auth_bp,    url_prefix='/api/auth')
     app.register_blueprint(admin_bp,   url_prefix='/api/admin')
     app.register_blueprint(doctor_bp,  url_prefix='/api/doctor')
     app.register_blueprint(patient_bp, url_prefix='/api/patient')
     app.register_blueprint(appt_bp,    url_prefix='/api/appointments')
+    app.register_blueprint(export_bp,  url_prefix='/api')
 
     @app.route('/api/health')
     def health():

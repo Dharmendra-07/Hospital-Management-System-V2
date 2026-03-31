@@ -51,6 +51,7 @@
         <AdminPatients     v-else-if="activeView === 'patient'"
                            :search-query="appliedSearch" />
         <AdminAppointments v-else-if="activeView === 'appointment'" />
+        <AdminJobs         v-else-if="activeView === 'jobs'" />
 
       </div>
     </main>
@@ -63,10 +64,11 @@ import AdminStats        from '../../components/admin/AdminStats.vue'
 import AdminDoctors      from '../../components/admin/AdminDoctors.vue'
 import AdminPatients     from '../../components/admin/AdminPatients.vue'
 import AdminAppointments from '../../components/admin/AdminAppointments.vue'
+import AdminJobs         from '../../components/admin/AdminJobs.vue'
 
 export default {
   name: 'AdminDashboard',
-  components: { AdminStats, AdminDoctors, AdminPatients, AdminAppointments },
+  components: { AdminStats, AdminDoctors, AdminPatients, AdminAppointments, AdminJobs },
   data() {
     return {
       activeView:    'dashboard',
@@ -77,6 +79,7 @@ export default {
         { view: 'doctor',      icon: '🩺', label: 'Doctors'      },
         { view: 'patient',     icon: '👤', label: 'Patients'     },
         { view: 'appointment', icon: '📅', label: 'Appointments' },
+        { view: 'jobs',        icon: '⚙️', label: 'Background Jobs'},
       ],
     }
   },
@@ -89,6 +92,7 @@ export default {
         doctor:      'Manage Doctors',
         patient:     'Manage Patients',
         appointment: 'All Appointments',
+        jobs:        'Background Jobs',
       }
       return map[this.activeView] || ''
     },

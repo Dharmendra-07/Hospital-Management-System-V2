@@ -1,14 +1,21 @@
+# Core Flask
 Flask==3.0.3
 Flask-SQLAlchemy==3.1.1
-Flask-Login==0.6.3
+Flask-JWT-Extended==4.6.0
 Flask-Mail==0.10.0
 Flask-Caching==2.3.0
-Flask-JWT-Extended==4.6.0
 Werkzeug==3.0.3
 SQLAlchemy==2.0.31
+
+# Celery + Redis
 celery==5.4.0
 redis==5.0.7
 kombu==5.3.4
-requests==2.32.3
+
+# Utilities
 python-dotenv==1.0.1
-marshmallow==3.21.3
+python-dateutil==2.9.0
+requests==2.32.3
+
+# Optional (Twilio SMS)
+# twilio==9.2.0

@@ -55,12 +55,13 @@ import PatientDoctors      from '../../components/patient/PatientDoctors.vue'
 import PatientAppointments from '../../components/patient/PatientAppointments.vue'
 import PatientHistory      from '../../components/patient/PatientHistory.vue'
 import PatientProfile      from '../../components/patient/PatientProfile.vue'
+import PatientExport       from '../../components/patient/PatientExport.vue'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 export default {
   name: 'PatientDashboard',
-  components: { PatientHome, PatientDoctors, PatientAppointments, PatientHistory, PatientProfile },
+  components: { PatientHome, PatientDoctors, PatientAppointments, PatientHistory, PatientProfile, PatientExport },
   data() {
     return {
       activeView:  'home',
@@ -71,6 +72,7 @@ export default {
         { view: 'appointments', icon: '📅', label: 'Appointments'  },
         { view: 'history',      icon: '📋', label: 'History'       },
         { view: 'profile',      icon: '👤', label: 'My Profile'    },
+        { view: 'export',       icon: '📥', label: 'Export Data'   },
       ],
     }
   },
