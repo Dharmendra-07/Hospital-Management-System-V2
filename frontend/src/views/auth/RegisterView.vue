@@ -1,101 +1,112 @@
 <template>
-  <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light py-4">
-    <div class="card shadow-sm" style="width: 100%; max-width: 520px;">
+  <div class="min-vh-100 d-flex align-items-center justify-content-center py-4"
+       style="background:linear-gradient(135deg,#e8f0fe 0%,#f5f7fa 100%);">
 
-      <!-- Header -->
-      <div class="card-header bg-success text-white text-center py-4">
-        <h4 class="mb-0">🏥 HMS — Patient Register</h4>
-        <small class="opacity-75">Create your account to book appointments</small>
+    <div class="w-100" style="max-width:560px;padding:0 16px;">
+
+      <!-- Brand -->
+      <div class="text-center mb-4">
+        <div style="font-size:48px;line-height:1;">🏥</div>
+        <h1 style="font-size:20px;font-weight:700;margin-top:8px;color:#212529;">
+          Create Patient Account
+        </h1>
+        <p class="text-muted small">Fill in your details to register</p>
       </div>
 
-      <div class="card-body p-4">
-        <!-- Success -->
-        <div v-if="success" class="alert alert-success">
-          ✅ Registration successful!
-          <router-link to="/login" class="alert-link">Click here to login.</router-link>
+      <!-- Success state -->
+      <div v-if="success" class="hms-card">
+        <div class="card-body p-4 text-center">
+          <div style="font-size:52px;">✅</div>
+          <h5 class="fw-bold mt-3">Registration Successful!</h5>
+          <p class="text-muted small">Your account has been created.</p>
+          <router-link to="/login" class="btn btn-primary px-4">
+            Sign In Now
+          </router-link>
         </div>
+      </div>
 
-        <!-- Error -->
-        <div v-if="error" class="alert alert-danger alert-dismissible">
-          {{ error }}
-          <button type="button" class="btn-close" @click="error = ''"></button>
-        </div>
+      <div v-else class="hms-card">
+        <div class="card-body p-4">
 
-        <template v-if="!success">
-          <!-- Account Info -->
-          <h6 class="text-muted fw-semibold mb-3 border-bottom pb-1">Account Details</h6>
+          <!-- Global error -->
+          <div v-if="globalError" class="alert alert-danger py-2 small">
+            {{ globalError }}
+          </div>
 
-          <div class="row g-3 mb-3">
+          <!-- Account details section -->
+          <h6 class="fw-semibold text-muted mb-3 pb-2 border-bottom"
+              style="font-size:12px;letter-spacing:.04em;text-transform:uppercase;">
+            Account Details
+          </h6>
+          <div class="row g-2">
             <div class="col-12">
-              <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
-              <input v-model="form.full_name" type="text" class="form-control" placeholder="John Doe" />
+              <FormField v-model="form.full_name" label="Full Name" :required="true"
+                         placeholder="Your full name" :error="errors.full_name"
+                         @blur="touch('full_name')" />
             </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
-              <input v-model="form.username" type="text" class="form-control" placeholder="johnDoe123" />
+            <div class="col-sm-6">
+              <FormField v-model="form.username" label="Username" :required="true"
+                         placeholder="Choose a username" :error="errors.username"
+                         hint="No spaces" @blur="touch('username')" />
             </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-              <input v-model="form.email" type="email" class="form-control" placeholder="john@example.com" />
+            <div class="col-sm-6">
+              <FormField v-model="form.email" label="Email" type="email" :required="true"
+                         placeholder="your@email.com" :error="errors.email"
+                         @blur="touch('email')" />
             </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
-              <input v-model="form.password" type="password" class="form-control" placeholder="Min 6 characters" />
+            <div class="col-sm-6">
+              <FormField v-model="form.password" label="Password" type="password"
+                         :required="true" placeholder="Min 6 characters"
+                         :error="errors.password" @blur="touch('password')" />
             </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Confirm Password <span class="text-danger">*</span></label>
-              <input v-model="form.confirm_password" type="password" class="form-control" placeholder="Repeat password" />
+            <div class="col-sm-6">
+              <FormField v-model="form.confirm_password" label="Confirm Password"
+                         type="password" :required="true" placeholder="Repeat password"
+                         :error="errors.confirm_password"
+                         @blur="touch('confirm_password')" />
             </div>
           </div>
 
-          <!-- Personal Info -->
-          <h6 class="text-muted fw-semibold mb-3 border-bottom pb-1">Personal Details</h6>
-          <div class="row g-3 mb-4">
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Gender</label>
-              <select v-model="form.gender" class="form-select">
-                <option value="">Select</option>
-                <option>Male</option>
-                <option>Female</option>
-                <option>Other</option>
-              </select>
+          <!-- Personal details section -->
+          <h6 class="fw-semibold text-muted mb-3 pb-2 border-bottom mt-3"
+              style="font-size:12px;letter-spacing:.04em;text-transform:uppercase;">
+            Personal Details <span class="fw-normal">(optional)</span>
+          </h6>
+          <div class="row g-2">
+            <div class="col-sm-6">
+              <FormField v-model="form.gender" label="Gender" type="select"
+                         :options="['Male','Female','Other']" />
             </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Date of Birth</label>
-              <input v-model="form.date_of_birth" type="date" class="form-control" />
+            <div class="col-sm-6">
+              <FormField v-model="form.date_of_birth" label="Date of Birth" type="date" />
             </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Contact Number</label>
-              <input v-model="form.contact_number" type="tel" class="form-control" placeholder="+91 XXXXX XXXXX" />
+            <div class="col-sm-6">
+              <FormField v-model="form.contact_number" label="Contact Number" type="tel"
+                         placeholder="+91 XXXXX XXXXX" :error="errors.contact_number"
+                         @blur="touch('contact_number')" />
             </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Blood Group</label>
-              <select v-model="form.blood_group" class="form-select">
-                <option value="">Select</option>
-                <option v-for="bg in bloodGroups" :key="bg">{{ bg }}</option>
-              </select>
+            <div class="col-sm-6">
+              <FormField v-model="form.blood_group" label="Blood Group" type="select"
+                         :options="bloodGroups" />
             </div>
             <div class="col-12">
-              <label class="form-label fw-semibold">Address</label>
-              <textarea v-model="form.address" class="form-control" rows="2" placeholder="Your address"></textarea>
+              <FormField v-model="form.address" label="Address" type="textarea"
+                         :rows="2" placeholder="Your address" />
             </div>
           </div>
 
-          <button
-            class="btn btn-success w-100"
-            @click="handleRegister"
-            :disabled="loading"
-          >
+          <button class="btn btn-primary w-100 mt-3"
+                  @click="handleRegister" :disabled="loading"
+                  style="padding:10px;">
             <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
-            {{ loading ? 'Registering...' : 'Create Account' }}
+            {{ loading ? 'Creating account…' : 'Create Account' }}
           </button>
 
-          <hr />
-          <p class="text-center mb-0 text-muted small">
+          <p class="text-center mb-0 mt-3 text-muted small">
             Already have an account?
-            <router-link to="/login" class="text-primary fw-semibold">Login here</router-link>
+            <router-link to="/login" class="fw-semibold text-primary">Sign in</router-link>
           </p>
-        </template>
+        </div>
       </div>
     </div>
   </div>
@@ -103,42 +114,62 @@
 
 <script>
 import { mapActions } from 'vuex'
+import FormField from '../../components/shared/FormField.vue'
+import { validateForm, schemas, validate, required, minLen, matches, isEmail, isPhone } from '../../utils/validators.js'
 
 export default {
   name: 'RegisterView',
+  components: { FormField },
   data() {
     return {
       form: {
-        username: '', email: '', password: '', confirm_password: '',
-        full_name: '', gender: '', date_of_birth: '',
+        full_name: '', username: '', email: '',
+        password: '', confirm_password: '',
+        gender: '', date_of_birth: '',
         contact_number: '', blood_group: '', address: '',
       },
-      bloodGroups: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-      loading: false,
-      error:   '',
-      success: false,
+      errors:      {},
+      globalError: '',
+      loading:     false,
+      success:     false,
+      bloodGroups: ['A+','A-','B+','B-','AB+','AB-','O+','O-'],
     }
   },
   methods: {
     ...mapActions('auth', ['register']),
 
-    validate() {
-      const { username, email, password, confirm_password, full_name } = this.form
-      if (!full_name || !username || !email || !password)
-        return 'Please fill in all required fields.'
-      if (password.length < 6)
-        return 'Password must be at least 6 characters.'
-      if (password !== confirm_password)
-        return 'Passwords do not match.'
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-        return 'Please enter a valid email address.'
-      return null
+    touch(field) {
+      const fieldSchema = {
+        full_name:        [required('Full name')],
+        username:         [required('Username'), minLen(3, 'Username')],
+        email:            [required('Email'), isEmail],
+        password:         [required('Password'), minLen(6, 'Password')],
+        confirm_password: [matches(this.form.password, 'Passwords')],
+        contact_number:   [isPhone],
+      }
+      if (fieldSchema[field]) {
+        const err = validate(this.form[field], ...fieldSchema[field])
+        if (err) {
+          this.errors = { ...this.errors, [field]: err }
+        } else {
+          const { [field]: _, ...rest } = this.errors
+          this.errors = rest
+        }
+      }
+    },
+
+    runValidation() {
+      const errs = validateForm(this.form, schemas.patientRegister)
+      if (this.form.password !== this.form.confirm_password) {
+        errs.confirm_password = 'Passwords do not match.'
+      }
+      return errs
     },
 
     async handleRegister() {
-      this.error = ''
-      const validationError = this.validate()
-      if (validationError) { this.error = validationError; return }
+      this.errors      = this.runValidation()
+      this.globalError = ''
+      if (Object.keys(this.errors).length) return
 
       this.loading = true
       try {
@@ -147,7 +178,12 @@ export default {
         await this.register(payload)
         this.success = true
       } catch (err) {
-        this.error = err.response?.data?.error || 'Registration failed. Please try again.'
+        const resp = err.response?.data
+        if (resp?.errors) {
+          this.errors = resp.errors
+        } else {
+          this.globalError = resp?.error || 'Registration failed. Please try again.'
+        }
       } finally {
         this.loading = false
       }
