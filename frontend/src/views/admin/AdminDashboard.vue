@@ -15,6 +15,8 @@
     <AdminAppointments v-else-if="activeView === 'appointment'" />
     <AdminJobs         v-else-if="activeView === 'jobs'" />
     <AdminCache        v-else-if="activeView === 'cache'" />
+    <AdminAnalytics    v-else-if="activeView === 'analytics'" />
+    <AdminReports      v-else-if="activeView === 'reports'" />
 
     <!-- Search slot for doctor/patient views -->
     <template #header-right v-if="activeView === 'doctor' || activeView === 'patient'">
@@ -41,6 +43,8 @@ import AdminPatients     from '../../components/admin/AdminPatients.vue'
 import AdminAppointments from '../../components/admin/AdminAppointments.vue'
 import AdminJobs         from '../../components/admin/AdminJobs.vue'
 import AdminCache        from '../../components/admin/AdminCache.vue'
+import AdminAnalytics    from '../../components/admin/AdminAnalytics.vue'
+import AdminReports      from '../../components/admin/AdminReports.vue'
 
 export default {
   name: 'AdminDashboard',
@@ -60,6 +64,8 @@ export default {
         { view: 'appointment', icon: '📅', label: 'Appointments'    },
         { view: 'jobs',        icon: '⚙️', label: 'Background Jobs' },
         { view: 'cache',       icon: '⚡', label: 'Cache Monitor'   },
+        { view: 'analytics',   icon: '📈', label: 'Analytics'       },
+        { view: 'reports',     icon: '📋', label: 'Reports'         },
       ],
       titleMap: {
         dashboard:   'Dashboard Overview',
@@ -68,6 +74,8 @@ export default {
         appointment: 'All Appointments',
         jobs:        'Background Jobs',
         cache:       'Cache Monitor',
+        analytics:   'Analytics & Charts',
+        reports:     'Report Center',
       },
     }
   },

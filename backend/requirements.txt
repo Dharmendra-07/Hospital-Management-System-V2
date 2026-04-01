@@ -17,5 +17,6 @@ python-dotenv==1.0.1
 python-dateutil==2.9.0
 requests==2.32.3
 
-# Optional (Twilio SMS)
-# twilio==9.2.0
+# PDF generation (optional — HTML fallback built in)
+# weasyprint==62.3     # Linux/Mac: apt-get install libpango-1.0-0 libcairo2
+# reportlab==4.2.2     # pip install reportlab (simpler, no system deps)

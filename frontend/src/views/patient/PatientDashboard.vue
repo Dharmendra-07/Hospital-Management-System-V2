@@ -17,6 +17,7 @@
     <PatientProfile      v-else-if="activeView === 'profile'"
                          @updated="refreshName" />
     <PatientExport       v-else-if="activeView === 'export'" />
+    <PatientPayment     v-else-if="activeView === 'payments'" />
   </AppLayout>
 </template>
 
@@ -30,6 +31,7 @@ import PatientAppointments from '../../components/patient/PatientAppointments.vu
 import PatientHistory      from '../../components/patient/PatientHistory.vue'
 import PatientProfile      from '../../components/patient/PatientProfile.vue'
 import PatientExport       from '../../components/patient/PatientExport.vue'
+import PatientPayment     from '../../components/patient/PatientPayment.vue'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
@@ -50,6 +52,7 @@ export default {
         { view: 'history',      icon: '📋', label: 'History'      },
         { view: 'profile',      icon: '👤', label: 'My Profile'   },
         { view: 'export',       icon: '📥', label: 'Export Data'  },
+        { view: 'payments',     icon: '💳', label: 'Payments'     },
       ],
       titleMap: {
         home:         'Welcome',
@@ -58,6 +61,7 @@ export default {
         history:      'Treatment History',
         profile:      'My Profile',
         export:       'Export Data',
+        payments:     'Payments',
       },
     }
   },

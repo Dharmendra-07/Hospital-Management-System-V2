@@ -1,6 +1,7 @@
 """
-backend/app.py
-All milestones: Auth · Admin · Doctor · Patient · Appointments · Exports · Cache
+backend/app.py — Flask application factory
+All milestones: Auth · Admin · Doctor · Patient · Appointments
+                Exports · Cache · Analytics · Payments · PDF Reports
 """
 
 from flask import Flask, jsonify
@@ -13,13 +14,11 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # ── Extensions ──────────────────────────
     db.init_app(app)
     jwt.init_app(app)
     cache.init_app(app)
     mail.init_app(app)
 
-    # ── JWT error handlers ───────────────────
     @jwt.unauthorized_loader
     def missing_token(reason):
         return jsonify({'error': 'Missing or invalid token.', 'reason': reason}), 401
@@ -40,6 +39,9 @@ def create_app(config_class=Config):
     from routes.appointments import appt_bp
     from routes.exports      import export_bp
     from routes.cache_admin  import cache_admin_bp
+    from routes.analytics    import analytics_bp
+    from routes.payments     import payments_bp
+    from routes.pdf_reports  import pdf_bp
 
     app.register_blueprint(auth_bp,        url_prefix='/api/auth')
     app.register_blueprint(admin_bp,       url_prefix='/api/admin')
@@ -48,6 +50,9 @@ def create_app(config_class=Config):
     app.register_blueprint(appt_bp,        url_prefix='/api/appointments')
     app.register_blueprint(export_bp,      url_prefix='/api')
     app.register_blueprint(cache_admin_bp, url_prefix='/api/admin/cache')
+    app.register_blueprint(analytics_bp,   url_prefix='/api/analytics')
+    app.register_blueprint(payments_bp,    url_prefix='/api/payments')
+    app.register_blueprint(pdf_bp,         url_prefix='/api/reports')
 
     @app.route('/api/health')
     def health():
